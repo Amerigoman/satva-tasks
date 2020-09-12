@@ -17,6 +17,10 @@ class CreateTasksTable extends Migration
             $table->id();
             $table->string('text');
             $table->boolean('is_done')->default(false);
+            $table->integer('group_id');
+            $table->foreign('group_id')
+                ->references('id')
+                ->on('groups');
             $table->boolean('is_removed')->default(false);
             $table->timestamps();
         });

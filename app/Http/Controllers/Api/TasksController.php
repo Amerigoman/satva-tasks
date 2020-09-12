@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Task;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\{Request, Response};
 
 /**
  * Class TasksController
@@ -13,15 +13,8 @@ use Illuminate\Http\Request;
  */
 class TasksController extends Controller
 {
-    public function getGroupedList(Request $request)
-    {
-
-    }
-
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @return Task[]
      */
     public function index()
     {
@@ -29,10 +22,8 @@ class TasksController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return mixed
      */
     public function store(Request $request)
     {
@@ -40,10 +31,8 @@ class TasksController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return mixed
      */
     public function show($id)
     {
@@ -51,31 +40,27 @@ class TasksController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param         $id
+     * @return mixed
      */
     public function update(Request $request, $id)
     {
-        $company = Task::findOrFail($id);
-        $company->update($request->all());
+        $task = Task::findOrFail($id);
+        $task->update($request->all());
 
-        return $company;
+        return $task;
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return Response
      */
     public function destroy($id)
     {
-        $company = Task::findOrFail($id);
-        $company->delete();
+        $task = Task::findOrFail($id);
+        $task->delete();
 
-        return new \Illuminate\Http\Response();
+        return new Response('');
     }
 }

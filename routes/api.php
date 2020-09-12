@@ -19,5 +19,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group(['namespace' => 'App\Http\Controllers\Api', 'as' => 'api.'], function () {
+    Route::get('groups', 'GroupsController@index');
     Route::resource('tasks', 'TasksController', ['except' => ['create', 'edit']]);
 });
