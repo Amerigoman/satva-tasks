@@ -8,7 +8,7 @@
                 <div class="scroll-area-sm">
                     <div style="position: static;" class="ps ps--active-y">
                         <div class="ps-content">
-                            <ul v-for="group in groups" :key="group.id" class="list-group list-group-flush">
+                            <ul v-for="(group, groupIndex) in groups" :key="group.id" class="list-group list-group-flush">
                                 <li class="list-group-item list-group-item-light group-section">
                                     <span>{{ group.name }}</span>
                                     <label v-if="isTaskBeingCreated === group.id" class="create-task-label">
@@ -16,29 +16,31 @@
                                     </label>
                                     <button v-else type="button" v-on:click="createTask(group.id)">+</button>
                                 </li>
-                                <li v-for="task in group.tasks" :key="task.id" class="list-group-item">
-                                    <div class="widget-content p-0">
-                                        <div class="widget-content-wrapper">
-                                            <div class="widget-content-left mr-2">
-                                                <div class="custom-checkbox custom-control">
-                                                    <input type="checkbox" v-bind:checked="task.is_done" @click="changeDone(group.id, task.id)" class="custom-control-input" :id="'taskCheck' + task.id">
-                                                    <label class="custom-control-label" :for="'taskCheck' + task.id">&nbsp;</label>
+                                <draggable v-model="group.tasks" group="people" @end="taskGroupChanged($event)" :data-group-id="group.id" :data-group-index="groupIndex">
+                                    <li v-for="task in group.tasks" :key="task.id" class="list-group-item">
+                                        <div class="widget-content p-0">
+                                            <div class="widget-content-wrapper">
+                                                <div class="widget-content-left mr-2">
+                                                    <div class="custom-checkbox custom-control">
+                                                        <input type="checkbox" v-bind:checked="task.is_done" @click="changeDone(group.id, task.id)" class="custom-control-input" :id="'taskCheck' + task.id">
+                                                        <label class="custom-control-label" :for="'taskCheck' + task.id">&nbsp;</label>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="widget-content-left">
-                                                <div class="widget-heading">
-                                                    <div v-if="isTaskBeingEdited !== task.id" v-on:click="editTask(task.id)">{{ task.text }}</div>
-                                                    <label v-else class="edit-task-label">
-                                                        <input @keyup.enter="updateTask(group.id, task.id, $event)" v-on:blur="onTaskBlur()" type="text" :value=task.text autofocus />
-                                                    </label>
+                                                <div class="widget-content-left">
+                                                    <div class="widget-heading">
+                                                        <div v-if="isTaskBeingEdited !== task.id" v-on:click="editTask(task.id)">{{ task.text }}</div>
+                                                        <label v-else class="edit-task-label">
+                                                            <input @keyup.enter="updateTask(group.id, task.id, $event)" v-on:blur="onTaskBlur()" type="text" :value=task.text autofocus />
+                                                        </label>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="widget-content-right">
-                                                <button class="btn-secondary" type="button" v-on:click="removeTask(group.id, task.id)">X</button>
+                                                <div class="widget-content-right">
+                                                    <button class="btn-secondary" type="button" v-on:click="removeTask(group.id, task.id)">X</button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </li>
+                                    </li>
+                                </draggable>
                             </ul>
                         </div>
                     </div>
@@ -50,8 +52,13 @@
 
 
 <script>
+    import draggable from 'vuedraggable'
     import http from '../services/http';
+
     export default {
+        components: {
+            draggable,
+        },
         data: () => ({
             checkedTaskMeta: null,
             isTaskBeingCreated: null,
@@ -69,6 +76,20 @@
                 this.groups[groupIndex].tasks[taskIndex].text = (await http.updateTaskText(groupId, e.target.value)).text;
 
                 this.isTaskBeingEdited = null;
+            },
+            taskGroupChanged: function (e) {
+                const { from, to, newIndex } = e;
+
+                const fromGroupId = from.dataset.groupId;
+                const toGroupId = to.dataset.groupId;
+
+                if (toGroupId !== fromGroupId) {
+                    const toGroupIndex = to.dataset.groupIndex;
+                    const movedTask = this.groups[toGroupIndex].tasks[newIndex];
+
+                    http.updateTaskGroup(movedTask.id, toGroupId);
+                }
+
             },
             createTask: async function (groupId) {
                 this.isTaskBeingCreated = groupId;

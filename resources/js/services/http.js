@@ -23,6 +23,11 @@ export default {
         return data;
     },
 
+    updateTaskGroup(taskId, groupId) {
+        const { data } = axios.patch(`${prefix}/tasks/${taskId}`, { group_id: groupId });
+        return data;
+    },
+
     async addTask(groupId, text) {
         const { data } = await axios.post(`${prefix}/tasks/`, { text, group_id: groupId });
         return data;
