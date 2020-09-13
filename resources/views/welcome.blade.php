@@ -27,7 +27,7 @@
     </head>
     <body class="antialiased">
         <div class="content" id="app">
-            <example-component></example-component>
+            <app-component></app-component>
         </div>
     </body>
 </html>
